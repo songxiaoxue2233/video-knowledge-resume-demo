@@ -1,0 +1,16 @@
+.env.local
+.env.production
+secrets/
+backups/
+*.log
+server/__pycache__/
+server/*.db
+server/*.db-shm
+server/*.db-wal
+server/exports/
+dist/dev/
+dist/build/
+node_modules/
+.venv/
+.runtime-bootstrap/
+tmp/p0-regression-report.json

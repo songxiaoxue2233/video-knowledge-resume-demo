@@ -1,0 +1,232 @@
+@import "uview-plus/theme.scss";
+
+$vk-purple: #6c4cf5;
+$vk-deep: #21075f;
+$vk-pink: #ff78b7;
+$vk-yellow: #ffc94a;
+$vk-blue: #6ccaf4;
+$vk-bg: #ffffff;
+$vk-soft: #f8f7fc;
+$vk-text: #161616;
+$vk-body: #444444;
+$vk-muted: #85818d;
+$vk-line: #eceaf1;
+$vk-radius-card: 20px;
+$vk-radius-widget: 14px;
+$vk-font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "HarmonyOS Sans SC", "Microsoft YaHei", "Helvetica Neue", sans-serif;
+
+/* 全局字体规范
+ * 字体：iOS 优先使用 PingFang SC，HarmonyOS 使用 HarmonyOS Sans SC，其他端回退 Microsoft YaHei / Helvetica。
+ * Hero 标题：28px / 950 / 1.20，仅首页主问题、登录品牌标题使用。
+ * 页面标题：26px / 900 / 1.25，用于一级页面标题。
+ * 功能标题：22px / 950 / 1.35，用于导入卡片标题、登录卡标题、个人中心姓名。
+ * 模块标题：20px / 900 / 1.35，用于“最近导入、所有笔记、核心知识点拆解”等模块。
+ * 卡片标题：17px / 900 / 1.40，用于笔记标题、记录标题、详情卡标题。
+ * 列表标题：15px / 900 / 1.35，用于首页最近导入条目、功能列表条目。
+ * 正文：14px / 400 / 1.65，用于摘要、结构化笔记正文、输入内容。
+ * 小标题/表单文字：13px / 900 / 1.45，用于字段名、状态说明。
+ * 辅助文字：12px / 700 / 1.45，用于时间、平台、说明、标签。
+ * 微型文字：11px / 800 / 1.00，仅用于底部导航、视频时长等固定小徽标。
+ * 主按钮：16px / 900 / 1.00，高度固定 52px。
+ * 数据数字：30px / 950 / 1.00，仅统计数字使用。
+ */
+page {
+  min-height: 100%;
+  background: $vk-bg;
+  color: $vk-text;
+  font-family: $vk-font-family;
+  font-size: 14px;
+  line-height: 1.65;
+}
+
+view,
+text,
+input,
+textarea,
+button {
+  font-family: $vk-font-family;
+  box-sizing: border-box;
+}
+
+.page {
+  min-height: 100vh;
+  background: $vk-bg;
+  color: $vk-text;
+}
+
+.phone-page {
+  max-width: 430px;
+  min-height: 100vh;
+  margin: 0 auto;
+  padding: 24px 20px calc(104px + env(safe-area-inset-bottom));
+  background: $vk-bg;
+}
+
+.top-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.page-title {
+  color: $vk-text;
+  font-size: 26px;
+  font-weight: 900;
+  line-height: 1.25;
+  letter-spacing: 0;
+}
+
+.hero-title-text {
+  color: $vk-text;
+  font-size: 28px;
+  font-weight: 950;
+  line-height: 1.2;
+  letter-spacing: 0;
+}
+
+.section-title {
+  color: $vk-text;
+  font-size: 20px;
+  font-weight: 900;
+  line-height: 1.35;
+  letter-spacing: 0;
+}
+
+.feature-title {
+  color: $vk-text;
+  font-size: 22px;
+  font-weight: 950;
+  line-height: 1.35;
+}
+
+.field-label {
+  color: $vk-text;
+  font-size: 13px;
+  font-weight: 900;
+  line-height: 1.45;
+}
+
+.list-title {
+  color: $vk-text;
+  font-size: 15px;
+  font-weight: 900;
+  line-height: 1.35;
+}
+
+.metric-number {
+  color: $vk-text;
+  font-size: 30px;
+  font-weight: 950;
+  line-height: 1;
+}
+
+.card-title {
+  color: $vk-text;
+  font-size: 17px;
+  font-weight: 900;
+  line-height: 1.4;
+}
+
+.body-text {
+  color: $vk-body;
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 1.65;
+}
+
+.caption-text,
+.muted {
+  color: $vk-muted;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.45;
+}
+
+.card {
+  border: 1px solid $vk-line;
+  border-radius: $vk-radius-card;
+  background: #ffffff;
+  box-shadow: 0 10px 28px rgba(33, 7, 95, 0.06);
+}
+
+.soft-card {
+  border-radius: $vk-radius-card;
+  background: $vk-soft;
+  box-shadow: 0 10px 28px rgba(33, 7, 95, 0.05);
+}
+
+.gradient-purple {
+  background: linear-gradient(135deg, #8c6cff 0%, #c19bff 100%);
+}
+
+.gradient-action {
+  background: linear-gradient(100deg, #8c6cff 0%, #ff78b7 100%);
+}
+
+.primary-button {
+  height: 52px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border-radius: 26px;
+  color: #ffffff;
+  background: linear-gradient(100deg, #8c6cff 0%, #ff78b7 100%);
+  font-size: 16px;
+  font-weight: 900;
+  line-height: 1;
+  box-shadow: 0 14px 24px rgba(108, 76, 245, 0.22);
+}
+
+.primary-button.disabled {
+  opacity: 0.45;
+  box-shadow: none;
+}
+
+.icon-button {
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid $vk-line;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.78);
+  color: $vk-text;
+}
+
+.pill {
+  min-height: 30px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 0 12px;
+  border-radius: 999px;
+  background: #ffffff;
+  color: $vk-text;
+  font-size: 12px;
+  font-weight: 900;
+  line-height: 1;
+}
+
+.tag {
+  display: inline-flex;
+  align-items: center;
+  height: 26px;
+  padding: 0 10px;
+  border-radius: 999px;
+  background: rgba(108, 76, 245, 0.12);
+  color: $vk-purple;
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.line-clamp-2 {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}

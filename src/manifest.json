@@ -1,0 +1,45 @@
+{
+  "name": "刷到的都是自己的",
+  "appid": "__UNI__VIDEO_KNOWLEDGE",
+  "description": "粘贴抖音/小红书链接，AI自动生成结构化知识笔记。",
+  "versionName": "0.1.0",
+  "versionCode": "100",
+  "transformPx": false,
+  "app-plus": {
+    "usingComponents": true,
+    "nvueStyleCompiler": "uni-app",
+    "compilerVersion": 3,
+    "splashscreen": {
+      "alwaysShowBeforeRender": true,
+      "waiting": true,
+      "autoclose": true,
+      "delay": 0
+    },
+    "modules": {
+      "Payment": {}
+    },
+    "distribute": {
+      "sdkConfigs": {
+        "payment": {
+          "weixin": {
+            "appid": ""
+          }
+        }
+      },
+      "android": {
+        "permissions": []
+      },
+      "ios": {}
+    }
+  },
+  "mp-weixin": {
+    "appid": "",
+    "setting": {
+      "urlCheck": false
+    },
+    "usingComponents": true
+  },
+  "h5": {
+    "title": "刷到的都是自己的"
+  }
+}

@@ -1,0 +1,32 @@
+{
+  "name": "video-knowledge-uniapp",
+  "version": "0.1.0",
+  "private": true,
+  "description": "刷到的都是自己的 - UniApp Vue3 mobile prototype",
+  "scripts": {
+    "dev:h5": "uni -p h5",
+    "dev:mp-weixin": "uni -p mp-weixin",
+    "build:h5": "uni build -p h5",
+    "build:mp-weixin": "uni build -p mp-weixin",
+    "build:app": "uni build -p app"
+  },
+  "dependencies": {
+    "@dcloudio/uni-app": "3.0.0-alpha-5020120260710001",
+    "@dcloudio/uni-app-plus": "3.0.0-alpha-5020120260710001",
+    "@dcloudio/uni-components": "3.0.0-alpha-5020120260710001",
+    "@dcloudio/uni-h5": "3.0.0-alpha-5020120260710001",
+    "@dcloudio/uni-mp-weixin": "3.0.0-alpha-5020120260710001",
+    "pinia": "^2.1.7",
+    "uview-plus": "^3.3.74",
+    "vue": "^3.4.21",
+    "vue-i18n": "^9.1.9"
+  },
+  "devDependencies": {
+    "@dcloudio/types": "3.4.31",
+    "@dcloudio/uni-automator": "3.0.0-alpha-5020120260710001",
+    "@dcloudio/uni-cli-shared": "3.0.0-alpha-5020120260710001",
+    "@dcloudio/vite-plugin-uni": "3.0.0-alpha-5020120260710001",
+    "sass": "^1.101.0",
+    "vite": "^5.0.0"
+  }
+}

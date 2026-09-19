@@ -1,0 +1,39 @@
+services:
+  - type: web
+    name: video-knowledge-resume-demo
+    runtime: docker
+    plan: free
+    dockerfilePath: ./Dockerfile.resume
+    healthCheckPath: /api/ready
+    envVars:
+      - key: APP_SECRET
+        generateValue: true
+      - key: PAYMENT_ENABLED
+        value: "0"
+      - key: FREE_BETA_QUOTA
+        value: "2"
+      - key: PUBLIC_DEMO_MODE
+        value: "1"
+      - key: PUBLIC_DEMO_DAILY_LIMIT
+        value: "20"
+      - key: DEYO_ENABLED
+        value: "0"
+      - key: REAL_VIDEO_FIRST
+        value: "0"
+      - key: CRV_ENABLED
+        value: "0"
+      - key: VISUAL_OCR_ENABLED
+        value: "0"
+      - key: TIKHUB_BASE_URL
+        value: https://api.tikhub.io
+      - key: TIKHUB_API_KEY
+        sync: false
+      - key: OPENAI_BASE_URL
+        value: https://api.deepseek.com
+      - key: LOW_COST_TEXT_MODEL
+        value: deepseek-chat
+      - key: LLM_FALLBACK_MODELS
+        value: deepseek-chat
+      - key: OPENAI_API_KEY
+        sync: false
+

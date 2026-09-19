@@ -1,0 +1,13 @@
+node_modules
+dist
+.git
+.env.local
+.env.production
+.venv
+server/video_knowledge.db*
+server/exports
+backups
+tmp
+*.log
+secrets
+

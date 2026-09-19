@@ -1,0 +1,24 @@
+FROM node:20-bookworm-slim AS web-build
+WORKDIR /app
+COPY package.json package-lock.json ./
+RUN npm ci
+COPY index.html vite.config.js ./
+COPY src ./src
+ENV VITE_API_BASE_URL=/backend VITE_USE_MOCK_FALLBACK=0
+RUN npm run build:h5
+
+FROM python:3.11-slim
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    VIDEO_KNOWLEDGE_HOST=0.0.0.0 \
+    VIDEO_KNOWLEDGE_DB=/tmp/video-knowledge/video_knowledge.db \
+    VIDEO_KNOWLEDGE_EXPORT_DIR=/tmp/video-knowledge/exports \
+    H5_DIST_DIR=/app/dist/build/h5 \
+    SERVE_H5=1
+WORKDIR /app
+RUN pip install --no-cache-dir cryptography
+COPY server /app/server
+COPY --from=web-build /app/dist/build/h5 /app/dist/build/h5
+EXPOSE 10000
+CMD ["python", "/app/server/app.py"]
+

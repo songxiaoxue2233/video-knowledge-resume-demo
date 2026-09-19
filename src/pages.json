@@ -1,0 +1,19 @@
+{
+  "pages": [
+    { "path": "pages/login/login", "style": { "navigationStyle": "custom" } },
+    { "path": "pages/register/register", "style": { "navigationStyle": "custom" } },
+    { "path": "pages/dashboard/index", "style": { "navigationStyle": "custom" } },
+    { "path": "pages/import/index", "style": { "navigationStyle": "custom" } },
+    { "path": "pages/library/index", "style": { "navigationStyle": "custom" } },
+    { "path": "pages/mine/mine", "style": { "navigationStyle": "custom" } },
+    { "path": "pages/vip/vip", "style": { "navigationStyle": "custom" } },
+    { "path": "pages/oauth/webview", "style": { "navigationBarTitleText": "云文档授权" } },
+    { "path": "pages/note/detail", "style": { "navigationStyle": "custom" } }
+  ],
+  "globalStyle": {
+    "navigationBarTextStyle": "black",
+    "navigationBarTitleText": "刷到的都是自己的",
+    "navigationBarBackgroundColor": "#FFFFFF",
+    "backgroundColor": "#FFFFFF"
+  }
+}
