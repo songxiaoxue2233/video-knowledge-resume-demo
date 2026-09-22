@@ -10,7 +10,7 @@ small Python API. Payment is intentionally disabled in the resume demo.
 
 - Account registration and login
 - Background import tasks with progress/history
-- Public-link parsing through TikHub
+- Public-link transcription through Deyo
 - Structured note generation through a compatible text-model API
 - Knowledge-base CRUD, folders, tags, dashboard, search, and exports
 - Free-demo safety limits: 2 imports per new account and 20 imports site-wide per day
@@ -21,7 +21,7 @@ Whisper/OCR fallbacks are excluded from the lightweight resume deployment.
 ## Deploy on Render
 
 1. Create a new Blueprint from this repository.
-2. Set the secret environment variables `TIKHUB_API_KEY` and `OPENAI_API_KEY`.
+2. Set the secret environment variables `DEYO_API_KEY` and `OPENAI_API_KEY`.
 3. Deploy using the included `render.yaml`.
 
 Render will build the H5 client and serve it together with the Python API from
