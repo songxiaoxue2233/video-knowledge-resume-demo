@@ -17,7 +17,11 @@ services:
       - key: PUBLIC_DEMO_DAILY_LIMIT
         value: "20"
       - key: DEYO_ENABLED
-        value: "0"
+        value: "1"
+      - key: DEYO_API_KEY
+        sync: false
+      - key: DEYO_TIMEOUT
+        value: "1800"
       - key: REAL_VIDEO_FIRST
         value: "0"
       - key: CRV_ENABLED
@@ -26,8 +30,6 @@ services:
         value: "0"
       - key: TIKHUB_BASE_URL
         value: https://api.tikhub.io
-      - key: TIKHUB_API_KEY
-        sync: false
       - key: OPENAI_BASE_URL
         value: https://api.deepseek.com
       - key: LOW_COST_TEXT_MODEL
@@ -36,4 +38,3 @@ services:
         value: deepseek-chat
       - key: OPENAI_API_KEY
         sync: false
-
