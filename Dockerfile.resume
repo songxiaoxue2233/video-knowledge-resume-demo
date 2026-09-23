@@ -21,8 +21,8 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 WORKDIR /app
 RUN pip install --no-cache-dir cryptography
 COPY --from=deyo-build /usr/local/bin/node /usr/local/bin/node
-COPY --from=deyo-build /usr/local/bin/deyo /usr/local/bin/deyo
 COPY --from=deyo-build /usr/local/lib/node_modules /usr/local/lib/node_modules
+RUN ln -s /usr/local/lib/node_modules/@casatwy/deyo/deyo.mjs /usr/local/bin/deyo
 COPY server /app/server
 COPY --from=web-build /app/dist/build/h5 /app/dist/build/h5
 EXPOSE 10000
