@@ -811,6 +811,24 @@ def recover_pending_tasks():
         ).start()
     return len(rows)
 
+def keep_active_tasks_awake():
+    """Keep Render's free web instance awake only while background work exists."""
+    render_url = os.getenv("RENDER_EXTERNAL_URL", "").rstrip("/")
+    if not render_url:
+        return
+    while True:
+        time.sleep(60)
+        try:
+            with conn() as c:
+                active = c.execute(
+                    "SELECT 1 FROM tasks WHERE status IN ('queued','processing') LIMIT 1"
+                ).fetchone()
+            if active:
+                with urlopen(render_url + "/api/ready", timeout=15) as response:
+                    response.read(32)
+        except Exception as exc:
+            print(f"Active-task keepalive failed: {exc}")
+
 def init():
     DB.parent.mkdir(parents=True, exist_ok=True)
     EXPORT_DIR.mkdir(parents=True, exist_ok=True)
@@ -1169,5 +1187,6 @@ if __name__=="__main__":
     load_env()
     init()
     recovered=recover_pending_tasks()
+    threading.Thread(target=keep_active_tasks_awake, daemon=True).start()
     print(f"API running http://{HOST}:{PORT}; recovered {recovered} background task(s)")
     ThreadingHTTPServer((HOST,PORT),H).serve_forever()
