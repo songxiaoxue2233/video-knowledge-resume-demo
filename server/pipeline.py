@@ -559,7 +559,13 @@ def resolve_link(link: str) -> dict:
         try:
             return resolve_with_deyo(link)
         except PipelineError as exc:
-            if os.getenv("STRICT_DEYO_PARSE", "0") == "1":
+            if (
+                os.getenv("STRICT_DEYO_PARSE", "0") == "1"
+                or (
+                    os.getenv("PUBLIC_DEMO_MODE", "0") == "1"
+                    and os.getenv("DEYO_API_KEY", "").strip()
+                )
+            ):
                 raise
             first_deyo_error = exc
     if supported_platform and os.getenv("REAL_VIDEO_FIRST", "1") == "1" and os.getenv("CRV_ENABLED", "1") == "1":
