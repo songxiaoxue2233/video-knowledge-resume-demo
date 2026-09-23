@@ -744,6 +744,7 @@ def parser_status():
         "deyoAvailable": bool(find_deyo_cli()),
         "deyoConfigured": bool(os.getenv("DEYO_API_KEY", "").strip()),
         "deyoEnabled": os.getenv("DEYO_ENABLED", "1") == "1",
+        "activeTaskKeepalive": bool(os.getenv("RENDER_EXTERNAL_URL", "").strip()),
         "crvAvailable": bool(importlib.util.find_spec("claude_real_video")),
         "crvEnabled": os.getenv("CRV_ENABLED", "1") == "1",
         "ffmpegAvailable": bool(find_ffmpeg()),
