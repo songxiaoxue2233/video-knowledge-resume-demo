@@ -344,6 +344,17 @@ def find_deyo_cli() -> str:
     return shutil.which("deyo") or shutil.which("deyo.cmd") or ""
 
 
+def deyo_title_from_transcript(transcript: str, platform: str) -> str:
+    for raw_line in (transcript or "").splitlines():
+        candidate = re.sub(r"^[#>*\-\d.\s]+", "", raw_line).strip()
+        candidate = re.sub(r"^(?:title|video title)\s*[:：]\s*", "", candidate, flags=re.I).strip()
+        if not candidate or candidate.startswith(("http://", "https://", "{", "[")):
+            continue
+        if content_signal(candidate) >= 6:
+            return candidate[:80]
+    return f"{platform or '视频'}知识笔记"
+
+
 def resolve_with_deyo(link: str) -> dict:
     deyo_cli = find_deyo_cli()
     if not deyo_cli:
@@ -378,10 +389,14 @@ def resolve_with_deyo(link: str) -> dict:
         raise PipelineError("DEYO_TRANSCRIBE_FAILED", err, "failed")
     if content_signal(transcript) < int(os.getenv("MIN_TRANSCRIPT_CHARS", "120")):
         raise PipelineError("DEYO_TRANSCRIPT_TOO_SHORT", "Deyo 未返回足够的视频转写正文，不生成假笔记。", "failed")
+    platform = infer_platform(link)
+    resolved_title = title_hint
+    if not resolved_title or resolved_title.startswith(("http://", "https://")):
+        resolved_title = deyo_title_from_transcript(transcript, platform)
     return {
-        "platform": infer_platform(link),
+        "platform": platform,
         "source_url": clean_link,
-        "title": title_hint or clean_link,
+        "title": resolved_title,
         "author": "",
         "cover_url": "",
         "caption_text": title_hint,
