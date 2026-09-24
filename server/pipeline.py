@@ -367,6 +367,9 @@ def resolve_with_deyo(link: str) -> dict:
     source = deyo_source_from_link(link)
     if source:
         cmd += ["--source", source]
+    language = os.getenv("DEYO_LANGUAGE", "zh" if source in {"douyin", "xiaohongshu"} else "").strip()
+    if language:
+        cmd += ["--language", language]
     cmd.append(clean_link)
     env = os.environ.copy()
     try:
