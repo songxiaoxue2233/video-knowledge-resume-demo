@@ -22,6 +22,8 @@ services:
         sync: false
       - key: DEYO_TIMEOUT
         value: "1800"
+      - key: DEYO_LANGUAGE
+        value: zh
       - key: REAL_VIDEO_FIRST
         value: "0"
       - key: CRV_ENABLED
