@@ -92,6 +92,9 @@ def public_api_base():
     return f"http://{HOST}:{PORT}"
 
 def now(): return time.strftime("%Y-%m-%d %H:%M:%S")
+def database_row(cursor, row):
+    """Return mapping-style rows for both sqlite3 and libSQL drivers."""
+    return {column[0]: row[index] for index, column in enumerate(cursor.description or [])}
 def conn():
     database_url = os.getenv("TURSO_DATABASE_URL", "").strip()
     if database_url:
@@ -103,7 +106,7 @@ def conn():
         )
     else:
         c = sqlite3.connect(DB, timeout=30)
-    c.row_factory = sqlite3.Row
+    c.row_factory = database_row
     return c
 def j(data): return json.dumps(data, ensure_ascii=False).encode("utf-8")
 def body(h):
