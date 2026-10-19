@@ -84,7 +84,7 @@
         </view>
       </view>
       <view class="third-row">
-        <view class="third-btn" :class="{ disabled: exporting }" @tap="runExport('feishu-current')">同步飞书</view>
+        <view v-if="feishuReady" class="third-btn" :class="{ disabled: exporting }" @tap="runExport('feishu-current')">同步飞书</view>
       </view>
     </view>
 
@@ -106,6 +106,7 @@ const keyword = ref('')
 const showFilter = ref(false)
 const showExport = ref(false)
 const exporting = ref(false)
+const feishuReady = ref(false)
 const notes = ref([])
 const selectedTag = ref('')
 const sortMode = ref('latest')
@@ -120,6 +121,9 @@ const sortOptions = [
 onShow(() => {
   favoriteIds.value = new Set(uni.getStorageSync(FAVORITES_KEY) || [])
   loadNotes()
+  api.integrationStatus()
+    .then((res) => { feishuReady.value = Boolean(res.feishu?.ready) })
+    .catch(() => { feishuReady.value = false })
 })
 
 function loadNotes() {

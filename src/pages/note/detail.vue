@@ -95,7 +95,7 @@
       </view>
 
       <view class="bottom-actions">
-        <view class="action-btn" :class="{ disabled: exporting }" @tap="runDetailAction('feishu')">同步飞书</view>
+        <view v-if="feishuReady" class="action-btn" :class="{ disabled: exporting }" @tap="runDetailAction('feishu')">同步飞书</view>
         <view class="action-btn" :class="{ disabled: exporting }" @tap="runDetailAction('word')">导出Word</view>
       </view>
     </template>
@@ -115,6 +115,7 @@ import { exportMarkdown, exportWord, syncFeishu } from '@/common/actions.js'
 const note = ref({})
 const loading = ref(false)
 const exporting = ref(false)
+const feishuReady = ref(false)
 const favorite = ref(false)
 const annotation = ref('')
 const expanded = ref({ core: true, annotation: true })
@@ -135,6 +136,9 @@ const knowledgeMeta = computed(() => {
 })
 
 onLoad((query) => {
+  api.integrationStatus()
+    .then((res) => { feishuReady.value = Boolean(res.feishu?.ready) })
+    .catch(() => { feishuReady.value = false })
   if (!query?.id) return
   loading.value = true
   api.getNote(query.id)
