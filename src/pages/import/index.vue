@@ -254,6 +254,20 @@ function makeRecord(extra = {}) {
   }
 }
 
+function readableTaskMessage(value = '', errorCode = '') {
+  let message = String(value || '').trim()
+  if (message.startsWith('{')) {
+    try {
+      const parsed = JSON.parse(message)
+      message = String(parsed?.message || message).replace(/^执行失败[：:]\s*/, '')
+    } catch (_) {}
+  }
+  if (errorCode === 'DEYO_TRANSCRIBE_FAILED' && /小红书.*(?:失效|无法读取)|无法读取笔记/.test(message)) {
+    return '该小红书分享链接已失效。请在小红书中重新打开原笔记，点击分享并复制最新链接后重试。'
+  }
+  return message
+}
+
 function loadHistory(showLoading = true, force = false) {
   if (refreshing.value && !force) return
   refreshing.value = true
@@ -275,6 +289,7 @@ function historyRecord(task) {
     title: task.title || `${platformName(task.link)}解析任务`,
     platform: task.platform || platformName(task.link),
     platformType: type || (task.platform === '小红书' ? 'xiaohongshu' : 'douyin'),
+    message: readableTaskMessage(task.message, task.errorCode),
     statusText: statusText(task.status),
     time: formatCompactTime(task.createdAt)
   })
