@@ -19,7 +19,7 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
     H5_DIST_DIR=/app/dist/build/h5 \
     SERVE_H5=1
 WORKDIR /app
-RUN pip install --no-cache-dir cryptography
+RUN pip install --no-cache-dir cryptography libsql
 COPY --from=deyo-build /usr/local/bin/node /usr/local/bin/node
 COPY --from=deyo-build /usr/local/lib/node_modules /usr/local/lib/node_modules
 RUN ln -s /usr/local/lib/node_modules/@casatwy/deyo/deyo.mjs /usr/local/bin/deyo
