@@ -92,9 +92,66 @@ def public_api_base():
     return f"http://{HOST}:{PORT}"
 
 def now(): return time.strftime("%Y-%m-%d %H:%M:%S")
-def database_row(cursor, row):
-    """Return mapping-style rows for both sqlite3 and libSQL drivers."""
-    return {column[0]: row[index] for index, column in enumerate(cursor.description or [])}
+
+class MappingCursor:
+    """Expose libSQL tuple rows with sqlite3.Row-like mapping access."""
+    def __init__(self, cursor):
+        self._cursor = cursor
+
+    def _mapping(self, row):
+        if row is None or isinstance(row, dict):
+            return row
+        columns = [column[0] for column in (self._cursor.description or [])]
+        return {name: row[index] for index, name in enumerate(columns)}
+
+    def fetchone(self):
+        return self._mapping(self._cursor.fetchone())
+
+    def fetchall(self):
+        return [self._mapping(row) for row in self._cursor.fetchall()]
+
+    def __iter__(self):
+        while True:
+            row = self.fetchone()
+            if row is None:
+                return
+            yield row
+
+    def __getattr__(self, name):
+        return getattr(self._cursor, name)
+
+
+class MappingConnection:
+    """Small DB-API adapter for the libSQL Python driver's missing row_factory."""
+    def __init__(self, connection):
+        self._connection = connection
+
+    def execute(self, *args, **kwargs):
+        return MappingCursor(self._connection.execute(*args, **kwargs))
+
+    def executemany(self, *args, **kwargs):
+        return MappingCursor(self._connection.executemany(*args, **kwargs))
+
+    def executescript(self, *args, **kwargs):
+        return MappingCursor(self._connection.executescript(*args, **kwargs))
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc, traceback):
+        try:
+            if exc_type is None:
+                self._connection.commit()
+            else:
+                self._connection.rollback()
+        finally:
+            self._connection.close()
+        return False
+
+    def __getattr__(self, name):
+        return getattr(self._connection, name)
+
+
 def conn():
     database_url = os.getenv("TURSO_DATABASE_URL", "").strip()
     if database_url:
@@ -104,9 +161,10 @@ def conn():
             database=database_url,
             auth_token=os.getenv("TURSO_AUTH_TOKEN", "").strip(),
         )
+        return MappingConnection(c)
     else:
         c = sqlite3.connect(DB, timeout=30)
-    c.row_factory = database_row
+    c.row_factory = sqlite3.Row
     return c
 def j(data): return json.dumps(data, ensure_ascii=False).encode("utf-8")
 def body(h):
