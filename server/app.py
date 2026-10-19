@@ -9,6 +9,11 @@ from urllib.request import Request, urlopen
 from pipeline import PipelineError, find_deyo_cli, find_ffmpeg, link_key, run_pipeline, validate_payload
 
 try:
+    import libsql
+except ImportError:
+    libsql = None
+
+try:
     from cryptography.hazmat.primitives import hashes, serialization
     from cryptography.hazmat.primitives.asymmetric import padding
     from cryptography.hazmat.primitives.ciphers.aead import AESGCM
@@ -88,7 +93,18 @@ def public_api_base():
 
 def now(): return time.strftime("%Y-%m-%d %H:%M:%S")
 def conn():
-    c = sqlite3.connect(DB, timeout=30); c.row_factory = sqlite3.Row; return c
+    database_url = os.getenv("TURSO_DATABASE_URL", "").strip()
+    if database_url:
+        if not libsql:
+            raise RuntimeError("已配置 TURSO_DATABASE_URL，但服务未安装 libsql")
+        c = libsql.connect(
+            database=database_url,
+            auth_token=os.getenv("TURSO_AUTH_TOKEN", "").strip(),
+        )
+    else:
+        c = sqlite3.connect(DB, timeout=30)
+    c.row_factory = sqlite3.Row
+    return c
 def j(data): return json.dumps(data, ensure_ascii=False).encode("utf-8")
 def body(h):
     n = int(h.headers.get("content-length", 0)); return json.loads(h.rfile.read(n).decode("utf-8") or "{}") if n else {}
@@ -867,8 +883,9 @@ def init():
     DB.parent.mkdir(parents=True, exist_ok=True)
     EXPORT_DIR.mkdir(parents=True, exist_ok=True)
     with conn() as c:
-        c.execute("PRAGMA journal_mode=WAL")
-        c.execute("PRAGMA busy_timeout=30000")
+        if not os.getenv("TURSO_DATABASE_URL", "").strip():
+            c.execute("PRAGMA journal_mode=WAL")
+            c.execute("PRAGMA busy_timeout=30000")
         old = c.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='notes'").fetchone()
         if old:
             cols = [r["name"] for r in c.execute("PRAGMA table_info(notes)").fetchall()]
