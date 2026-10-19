@@ -27,6 +27,9 @@ PLAN_CONFIG = {
     "yearly": {"name": "年度VIP", "amount": 19900, "quota": 5000, "member_type": "年度VIP"},
 }
 
+ACTIVE_IMPORT_TASKS = set()
+ACTIVE_IMPORT_TASKS_LOCK = threading.Lock()
+
 def payment_enabled():
     return os.getenv("PAYMENT_ENABLED", "0").strip() == "1"
 
@@ -794,6 +797,40 @@ def process_import_task(task_id, user_id, link):
     except Exception as e:
         update_task(task_id, "failed", "failed", str(e), "PIPELINE_FAILED")
 
+def _run_import_worker(task_id, user_id, link):
+    try:
+        process_import_task(task_id, user_id, link)
+    finally:
+        with ACTIVE_IMPORT_TASKS_LOCK:
+            ACTIVE_IMPORT_TASKS.discard(task_id)
+
+def start_import_worker(task_id, user_id, link):
+    """Start one durable background worker per task in this server process."""
+    with ACTIVE_IMPORT_TASKS_LOCK:
+        if task_id in ACTIVE_IMPORT_TASKS:
+            return False
+        ACTIVE_IMPORT_TASKS.add(task_id)
+    try:
+        threading.Thread(
+            target=_run_import_worker,
+            args=(task_id, user_id, link),
+            daemon=True,
+        ).start()
+        return True
+    except Exception:
+        with ACTIVE_IMPORT_TASKS_LOCK:
+            ACTIVE_IMPORT_TASKS.discard(task_id)
+        raise
+
+def revive_orphaned_tasks(user_id):
+    """Resume persisted tasks whose original worker disappeared unexpectedly."""
+    with conn() as c:
+        rows=c.execute(
+            "SELECT id,user_id,link FROM tasks WHERE user_id=? AND status IN ('queued','processing') ORDER BY created_at",
+            (user_id,),
+        ).fetchall()
+    return sum(1 for row in rows if start_import_worker(row["id"],row["user_id"],row["link"]))
+
 def recover_pending_tasks():
     with conn() as c:
         rows=c.execute(
@@ -805,11 +842,7 @@ def recover_pending_tasks():
                 (row["id"],),
             )
     for row in rows:
-        threading.Thread(
-            target=process_import_task,
-            args=(row["id"],row["user_id"],row["link"]),
-            daemon=True,
-        ).start()
+        start_import_worker(row["id"],row["user_id"],row["link"])
     return len(rows)
 
 def keep_active_tasks_awake():
@@ -961,11 +994,7 @@ class H(BaseHTTPRequestHandler):
                 # independent of the browser page and can therefore continue after navigation.
                 c.commit()
                 for task in created:
-                    threading.Thread(
-                        target=process_import_task,
-                        args=(task["taskId"],u["id"],task["link"]),
-                        daemon=True,
-                    ).start()
+                    start_import_worker(task["taskId"],u["id"],task["link"])
                 return self.sendj({"taskId":first_task,"noteId":None,"count":len(links),"successCount":0,"created":created},201)
             m=re.fullmatch(r"/api/notes/([^/]+)/annotations",p)
             if m:
@@ -1124,6 +1153,7 @@ class H(BaseHTTPRequestHandler):
             if m:
                 r=c.execute("SELECT * FROM notes WHERE id=? AND user_id=?",(m.group(1),u["id"])).fetchone(); return self.sendj(note_row(r) if r else {"error":"not found"}, 200 if r else 404)
             if p=="/api/import-tasks":
+                revive_orphaned_tasks(u["id"])
                 page=max(1,int(q.get("page",["1"])[0])); size=min(50,max(1,int(q.get("pageSize",["20"])[0])))
                 total=c.execute("SELECT COUNT(*) n FROM tasks WHERE user_id=?",(u["id"],)).fetchone()["n"]
                 rows=c.execute(
