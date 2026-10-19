@@ -355,6 +355,26 @@ def deyo_title_from_transcript(transcript: str, platform: str) -> str:
     return f"{platform or '视频'}知识笔记"
 
 
+def deyo_error_message(output: str, source: str = "") -> str:
+    """Extract the useful message from Deyo's JSONL progress output."""
+    raw = str(output or "").strip()
+    messages = []
+    for line in raw.splitlines():
+        line = line.strip()
+        if not line:
+            continue
+        try:
+            event = json.loads(line)
+        except (TypeError, ValueError, json.JSONDecodeError):
+            continue
+        if isinstance(event, dict) and event.get("message"):
+            messages.append(str(event["message"]).strip())
+    message = messages[-1] if messages else compact_text(raw or "Deyo 转写失败", limit=1200)
+    if source == "xiaohongshu" and any(word in message for word in ("链接已失效", "无法读取笔记", "笔记不存在", "404")):
+        return "该小红书分享链接已失效或笔记已不可访问。请在小红书中重新打开原笔记，点击分享并复制最新链接后重试。"
+    return message
+
+
 def resolve_with_deyo(link: str) -> dict:
     deyo_cli = find_deyo_cli()
     if not deyo_cli:
@@ -388,7 +408,7 @@ def resolve_with_deyo(link: str) -> dict:
     transcript = raw_path.read_text(encoding="utf-8", errors="ignore") if raw_path.exists() else (proc.stdout or "")
     transcript = compact_text(transcript, limit=20000)
     if proc.returncode != 0:
-        err = compact_text(proc.stderr or proc.stdout or "Deyo 转写失败", limit=1200)
+        err = deyo_error_message(proc.stderr or proc.stdout, source)
         raise PipelineError("DEYO_TRANSCRIBE_FAILED", err, "failed")
     if content_signal(transcript) < int(os.getenv("MIN_TRANSCRIPT_CHARS", "120")):
         raise PipelineError("DEYO_TRANSCRIPT_TOO_SHORT", "Deyo 未返回足够的视频转写正文，不生成假笔记。", "failed")
