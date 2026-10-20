@@ -126,11 +126,30 @@ class MappingConnection:
     def __init__(self, connection):
         self._connection = connection
 
-    def execute(self, *args, **kwargs):
-        return MappingCursor(self._connection.execute(*args, **kwargs))
+    @staticmethod
+    def _positional_parameters(sql, parameters):
+        """Convert sqlite named parameters because remote libSQL accepts sequences only."""
+        if not isinstance(parameters, dict):
+            return sql, parameters
+        values = []
 
-    def executemany(self, *args, **kwargs):
-        return MappingCursor(self._connection.executemany(*args, **kwargs))
+        def replace(match):
+            values.append(parameters[match.group(1)])
+            return "?"
+
+        return re.sub(r":([A-Za-z_][A-Za-z0-9_]*)", replace, sql), tuple(values)
+
+    def execute(self, sql, parameters=()):
+        sql, parameters = self._positional_parameters(sql, parameters)
+        return MappingCursor(self._connection.execute(sql, parameters))
+
+    def executemany(self, sql, parameters):
+        rows = list(parameters)
+        if rows and isinstance(rows[0], dict):
+            names = re.findall(r":([A-Za-z_][A-Za-z0-9_]*)", sql)
+            sql = re.sub(r":([A-Za-z_][A-Za-z0-9_]*)", "?", sql)
+            rows = [tuple(row[name] for name in names) for row in rows]
+        return MappingCursor(self._connection.executemany(sql, rows))
 
     def executescript(self, *args, **kwargs):
         return MappingCursor(self._connection.executescript(*args, **kwargs))
